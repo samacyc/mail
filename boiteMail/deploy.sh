@@ -32,7 +32,7 @@ npm run build
 echo "[4/4] Serving frontend build with PM2 (via serve)..."
 # Requires `serve` globally: npm install -g serve
 pm2 delete emailapp-frontend 2>/dev/null || true
-pm2 serve dist 3000 \
+pm2 serve dist 4200 \
   --name emailapp-frontend \
   --spa
 pm2 save

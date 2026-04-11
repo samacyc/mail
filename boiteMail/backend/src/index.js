@@ -14,7 +14,10 @@ const EmailCache = require('./models/EmailCache');
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'http://2.58.82.125:4200',
+  ],
   credentials: true
 }));
 
