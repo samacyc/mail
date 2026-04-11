@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import api from '../api'
 
 export default function LoginPage({ onLogin }) {
   const [password, setPassword] = useState('')
@@ -11,7 +11,7 @@ export default function LoginPage({ onLogin }) {
     setLoading(true)
     setError('')
     try {
-      await axios.post('http://localhost:3001/api/login', { password }, { withCredentials: true })
+      await api.post('/login', { password }, { withCredentials: true })
       onLogin()
     } catch {
       setError('Wrong password')
