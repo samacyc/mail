@@ -15,13 +15,16 @@ function pickColor(index) {
 
 const GRAPH_SCOPE = 'https://graph.microsoft.com/Mail.ReadWrite https://graph.microsoft.com/Mail.Send https://graph.microsoft.com/User.Read offline_access openid email';
 
+const REDIRECT_URI = (process.env.MICROSOFT_REDIRECT_URI || '').trim();
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').trim();
+
 // GET /api/auth/microsoft/url — generate Microsoft OAuth authorization URL
 router.get('/microsoft/url', (req, res) => {
   try {
     const params = new URLSearchParams({
       client_id: process.env.MICROSOFT_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+      redirect_uri: REDIRECT_URI,
       scope: GRAPH_SCOPE,
       response_mode: 'query',
       prompt: 'consent'
@@ -40,11 +43,11 @@ router.get('/microsoft/callback', async (req, res) => {
   if (oauthError) {
     console.error('OAuth error from Microsoft:', oauthError, error_description, 'codes:', error_codes);
     const msg = encodeURIComponent(error_description || oauthError);
-    return res.redirect(`http://localhost:5173/admin?error=${msg}`);
+    return res.redirect(`${FRONTEND_URL}/admin?error=${msg}`);
   }
 
   if (!code) {
-    return res.redirect('http://localhost:5173/admin?error=No+authorization+code+received');
+    return res.redirect(`${FRONTEND_URL}/admin?error=No+authorization+code+received`);
   }
 
   try {
@@ -53,7 +56,7 @@ router.get('/microsoft/callback', async (req, res) => {
       client_id: process.env.MICROSOFT_CLIENT_ID,
       client_secret: process.env.MICROSOFT_CLIENT_SECRET,
       code,
-      redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+      redirect_uri: REDIRECT_URI,
       grant_type: 'authorization_code',
       scope: GRAPH_SCOPE
     });
@@ -73,7 +76,7 @@ router.get('/microsoft/callback', async (req, res) => {
     const email = meResponse.data.mail || meResponse.data.userPrincipalName;
 
     if (!email) {
-      return res.redirect('http://localhost:5173/admin?error=Could+not+retrieve+email+from+Microsoft');
+      return res.redirect(`${FRONTEND_URL}/admin?error=Could+not+retrieve+email+from+Microsoft`);
     }
 
     const token_expiry = new Date(Date.now() + expires_in * 1000);
@@ -107,13 +110,13 @@ router.get('/microsoft/callback', async (req, res) => {
       }).save();
     }
 
-    res.redirect('http://localhost:5173/admin?success=microsoft');
+    res.redirect(`${FRONTEND_URL}/admin?success=microsoft`);
   } catch (err) {
     console.error('Microsoft OAuth callback error:', err.response?.data || err.message);
     const errorMsg = encodeURIComponent(
       err.response?.data?.error_description || err.message || 'OAuth failed'
     );
-    res.redirect(`http://localhost:5173/admin?error=${errorMsg}`);
+    res.redirect(`${FRONTEND_URL}/admin?error=${errorMsg}`);
   }
 });
 

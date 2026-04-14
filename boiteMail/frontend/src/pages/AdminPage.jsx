@@ -415,7 +415,7 @@ export default function AdminPage() {
                   <button
                     onClick={() => handleDelete(account._id, account.email)}
                     disabled={deletingId === account._id}
-                    className="text-gray-600 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-400/10 opacity-0 group-hover:opacity-100"
+                    className="text-gray-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-400/10"
                     title="Remove account"
                   >
                     {deletingId === account._id ? (

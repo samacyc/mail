@@ -13,11 +13,10 @@ const EmailCache = require('./models/EmailCache');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://2.58.82.125:4200',
-  ],
+  origin: true,
   credentials: true
 }));
 
@@ -27,7 +26,7 @@ app.use(session({
   secret: process.env.ENCRYPTION_KEY,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true }
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' }
 }));
 
 // Login

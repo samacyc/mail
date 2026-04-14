@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Account = require('../models/Account');
+const EmailCache = require('../models/EmailCache');
 const { encrypt } = require('../utils/crypto');
 const { getImapSmtp } = require('../utils/domainDetect');
 const { testImapConnection } = require('../services/imapService');
@@ -120,13 +121,14 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// DELETE /api/accounts/:id — remove an account
+// DELETE /api/accounts/:id — remove an account and its cached emails
 router.delete('/:id', async (req, res) => {
   try {
     const account = await Account.findByIdAndDelete(req.params.id);
     if (!account) {
       return res.status(404).json({ error: 'Account not found.' });
     }
+    await EmailCache.deleteMany({ accountId: req.params.id });
     res.json({ message: 'Account removed successfully.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
